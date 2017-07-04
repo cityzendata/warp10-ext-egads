@@ -31,8 +31,7 @@ public class EGADSTUNE extends NamedWarpScriptFunction implements WarpScriptStac
     if (!(top instanceof List)) {
       throw new WarpScriptException(getName() + " expects a list of anomalies on top of the stack.");
     }
-    
-    
+        
     top = stack.pop();
     
     if (!(top instanceof GeoTimeSerie)) {
@@ -49,6 +48,8 @@ public class EGADSTUNE extends NamedWarpScriptFunction implements WarpScriptStac
     
     GeoTimeSerie observedGTS = (GeoTimeSerie) top;
     
+    top = stack.pop();
+    
     if (!(top instanceof SnapshotableModel)) {
       throw new WarpScriptException(getName() + " expects an EGADS model below the observed and expected Geo Time Series.");
     }
@@ -59,9 +60,11 @@ public class EGADSTUNE extends NamedWarpScriptFunction implements WarpScriptStac
       try {
         DataSequence observed = EGADSUtils.fromGTS(observedGTS);
         DataSequence expected = EGADSUtils.fromGTS(expectedGTS);
-        IntervalSequence intervals = ((AnomalyDetectionModel) model.getModel()).tune(observed, expected, anomalies);
+        IntervalSequence anomalies = null;
         
-        stack.push(intervals);
+        ((AnomalyDetectionModel) model.getModel()).tune(observed, expected, anomalies);
+        
+        stack.push(model);
       } catch (Exception e) {
         throw new WarpScriptException(getName() + " encountered an exception when training the model.");
       }
